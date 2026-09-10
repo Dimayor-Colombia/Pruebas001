@@ -75,72 +75,88 @@
     display:flex; flex-direction:row; align-items:stretch;
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
     box-shadow:var(--shadow-sm); overflow:hidden;
-    animation:fadeUp .35s var(--ease) both;
+    animation:rowIn .5s var(--ease) both;
   }
+  .dayCol:nth-child(1){animation-delay:.02s;}
+  .dayCol:nth-child(2){animation-delay:.1s;}
+  .dayCol:nth-child(3){animation-delay:.18s;}
   .dayCol.today{
     border-color:var(--primary-light);
-    box-shadow:var(--shadow), 0 0 0 1px rgba(0,99,204,0.25) inset;
+    box-shadow:var(--shadow-lg), 0 0 0 2px rgba(0,99,204,0.35) inset;
   }
   .dayHead{
-    flex:0 0 108px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:6px 8px;
+    flex:0 0 150px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:6px 10px; position:relative;
     border-right:1px solid var(--line); background:var(--soft-blue);
   }
-  .dayCol.today .dayHead{background:var(--primary); }
-  .dayHead .wd{font-size:15px; text-transform:uppercase; letter-spacing:.6px; font-weight:600; color:var(--primary-dark);}
+  .dayCol.today .dayHead{background:linear-gradient(160deg, var(--primary-dark), var(--primary-light)); }
+  .dayHead .wd{font-size:24px; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:var(--primary-dark);}
   .dayCol.today .dayHead .wd{color:#fff;}
-  .dayHead .dt{font-family:'DM Mono', monospace; font-size:11px; color:var(--muted); margin-top:2px;}
-  .dayCol.today .dayHead .dt{color:rgba(255,255,255,0.85);}
+  .dayHead .dt{font-family:'DM Mono', monospace; font-size:14px; color:var(--muted); margin-top:4px;}
+  .dayCol.today .dayHead .dt{color:rgba(255,255,255,0.9);}
 
   .matches{
     flex:1 1 auto; min-height:0; min-width:0; overflow:hidden;
     display:flex; flex-direction:row; flex-wrap:wrap; align-content:flex-start;
-    gap:calc(6px * var(--s));
-    padding:calc(7px * var(--s));
+    gap:calc(9px * var(--s));
+    padding:calc(10px * var(--s));
   }
   .matches .match{
-    flex:0 0 auto; width:calc(200px * var(--s));
+    flex:0 0 auto; width:calc(250px * var(--s));
   }
+  .matches .match:nth-child(1){animation-delay:.08s;}
+  .matches .match:nth-child(2){animation-delay:.14s;}
+  .matches .match:nth-child(3){animation-delay:.2s;}
+  .matches .match:nth-child(4){animation-delay:.26s;}
+  .matches .match:nth-child(5){animation-delay:.32s;}
+  .matches .match:nth-child(6){animation-delay:.38s;}
+  .matches .match:nth-child(n+7){animation-delay:.44s;}
 
-  .emptyState{ margin:auto; color:var(--muted); font-size:12px; text-align:center; padding:10px; }
+  .emptyState{ margin:auto; color:var(--muted); font-size:14px; text-align:center; padding:10px; }
 
   /* ---------- Tarjeta de partido ---------- */
   .match{
     position:relative;
     background: var(--comp-bg, var(--card));
-    border:1px solid var(--line); border-left:calc(3px * var(--s)) solid var(--comp-color, var(--primary));
+    border:1px solid var(--line); border-left:calc(4px * var(--s)) solid var(--comp-color, var(--primary));
     border-radius:var(--radius-sm);
-    padding:calc(6px * var(--s)) calc(8px * var(--s));
+    padding:calc(9px * var(--s)) calc(11px * var(--s));
     box-shadow:var(--shadow-sm);
+    animation:cardIn .4s var(--ease) both;
+    transition: box-shadow .3s ease;
   }
   .match.finalizado{opacity:.95; background: var(--comp-bg-soft, var(--card));}
-  .match .comp{
-    font-size:calc(8.5px * var(--s)); letter-spacing:.4px; text-transform:uppercase;
-    color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    display:flex; align-items:center; gap:4px; margin-bottom:2px; font-weight:500;
+  .match.vivo{
+    box-shadow:0 0 0 2px rgba(220,38,38,.55), var(--shadow);
+    animation:cardIn .4s var(--ease) both, liveGlow 1.8s ease-in-out infinite;
   }
-  .match .comp img{width:calc(12px * var(--s)); height:calc(12px * var(--s)); object-fit:contain; border-radius:3px; flex:0 0 auto;}
+  .match .comp{
+    font-size:calc(11px * var(--s)); letter-spacing:.4px; text-transform:uppercase;
+    color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    display:flex; align-items:center; gap:5px; margin-bottom:3px; font-weight:600;
+  }
+  .match .comp img{width:calc(15px * var(--s)); height:calc(15px * var(--s)); object-fit:contain; border-radius:3px; flex:0 0 auto;}
   .match .title{
-    font-size:calc(12.5px * var(--s)); font-weight:600; line-height:1.25; color:var(--text);
+    font-size:calc(16px * var(--s)); font-weight:700; line-height:1.25; color:var(--text);
     white-space:normal; overflow-wrap:break-word;
   }
   .match .venue{
-    font-size:calc(9.5px * var(--s)); color:var(--muted); margin-top:calc(2px * var(--s));
+    font-size:calc(11.5px * var(--s)); color:var(--muted); margin-top:calc(3px * var(--s));
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .match .row2{display:flex; align-items:center; justify-content:center; margin-top:calc(3px * var(--s));}
+  .match .row2{display:flex; align-items:center; justify-content:center; margin-top:calc(5px * var(--s));}
   .kickoff{
-    font-family:'DM Mono', monospace; font-size:calc(12.5px * var(--s)); font-weight:500;
+    font-family:'DM Mono', monospace; font-size:calc(16px * var(--s)); font-weight:600;
     color:var(--primary);
   }
 
   .badge{
-    display:inline-flex; align-items:center; gap:4px;
-    font-size:calc(9px * var(--s)); font-weight:600; letter-spacing:.4px;
-    padding:calc(2px * var(--s)) calc(6px * var(--s)); border-radius:20px; text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:calc(11px * var(--s)); font-weight:700; letter-spacing:.4px;
+    padding:calc(3px * var(--s)) calc(8px * var(--s)); border-radius:20px; text-transform:uppercase;
   }
   .badge.live{background:var(--soft-red); color:var(--danger);}
-  .badge.live .dot{width:5px;height:5px;border-radius:50%;background:var(--danger); animation:pulse 1s infinite;}
+  .badge.live .dot{width:6px;height:6px;border-radius:50%;background:var(--danger); animation:pulse 1s infinite;}
   .badge.done{background:#eef1f5; color:var(--muted);}
 
   /* Marcador centrado (final o en vivo) */
@@ -148,34 +164,35 @@
     display:flex; flex-direction:column; align-items:center; gap:1px;
   }
   .scoreBig{
-    font-family:'DM Mono', monospace; font-weight:700;
-    font-size:calc(15px * var(--s)); color:var(--text); letter-spacing:.5px; line-height:1;
+    font-family:'DM Mono', monospace; font-weight:800;
+    font-size:calc(19px * var(--s)); color:var(--text); letter-spacing:.5px; line-height:1;
   }
   .scoreboard.live .scoreBig{ color:var(--danger); }
   .matchClock{
-    font-size:calc(8.5px * var(--s)); color:var(--muted); text-transform:uppercase; letter-spacing:.4px;
-    display:flex; align-items:center; gap:4px; margin-top:2px;
+    font-size:calc(10.5px * var(--s)); color:var(--muted); text-transform:uppercase; letter-spacing:.4px;
+    display:flex; align-items:center; gap:5px; margin-top:3px;
   }
-  .liveDotSmall{ width:5px; height:5px; border-radius:50%; background:var(--danger); animation:pulse 1s infinite; flex:0 0 auto; }
+  .liveDotSmall{ width:6px; height:6px; border-radius:50%; background:var(--danger); animation:pulse 1s infinite; flex:0 0 auto; }
 
   /* Goleadores y tarjetas debajo del marcador final */
   .matchEvents{
-    display:flex; justify-content:space-between; gap:calc(6px * var(--s));
-    margin-top:calc(4px * var(--s)); padding-top:calc(4px * var(--s));
+    display:flex; justify-content:space-between; gap:calc(8px * var(--s));
+    margin-top:calc(6px * var(--s)); padding-top:calc(6px * var(--s));
     border-top:1px dashed var(--line);
   }
   .teamEvents{
-    flex:1; font-size:calc(8px * var(--s)); color:var(--muted); line-height:1.5;
+    flex:1; font-size:calc(10px * var(--s)); color:var(--muted); line-height:1.55;
     text-align:left; overflow:hidden;
   }
   .teamEvents.right{ text-align:right; }
 
-  .progress{height:2px; border-radius:3px; background:var(--soft-red); margin-top:calc(4px * var(--s)); overflow:hidden;}
+  .progress{height:3px; border-radius:3px; background:var(--soft-red); margin-top:calc(5px * var(--s)); overflow:hidden;}
   .progress i{display:block; height:100%; background:var(--danger);}
 
   .moreChip{
-    text-align:center; font-size:11px; color:var(--muted);
-    padding:4px; border:1px dashed var(--line); border-radius:var(--radius-sm); flex:0 0 auto;
+    text-align:center; font-size:13px; color:var(--muted); font-weight:500;
+    padding:6px; border:1px dashed var(--line); border-radius:var(--radius-sm); flex:0 0 auto;
+    align-self:stretch; display:flex; align-items:center; justify-content:center; min-width:80px;
   }
 
   footer{
@@ -189,12 +206,26 @@
 
   @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.35;}}
   @keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes rowIn{from{opacity:0; transform:translateX(-16px);} to{opacity:1; transform:translateX(0);}}
+  @keyframes cardIn{from{opacity:0; transform:translateY(10px) scale(.96);} to{opacity:1; transform:translateY(0) scale(1);}}
+  @keyframes liveGlow{
+    0%,100%{ box-shadow:0 0 0 2px rgba(220,38,38,.55), var(--shadow); }
+    50%{ box-shadow:0 0 0 4px rgba(220,38,38,.18), var(--shadow-lg); }
+  }
+  @keyframes pageExit{ from{opacity:1; transform:translateX(0) scale(1);} to{opacity:0; transform:translateX(-32px) scale(.98);} }
+  @keyframes pageEnter{ from{opacity:0; transform:translateX(32px) scale(.98);} to{opacity:1; transform:translateX(0) scale(1);} }
+  .grid.page-exit{ animation:pageExit .35s var(--ease) forwards; }
+  .grid.page-enter{ animation:pageEnter .45s var(--ease) both; }
+
+  .pageDots{ display:flex; align-items:center; gap:6px; }
+  .pageDots .dot{ width:7px; height:7px; border-radius:50%; background:var(--line); transition:background .3s ease, transform .3s ease; }
+  .pageDots .dot.active{ background:var(--primary); transform:scale(1.25); }
 
   @media (max-width:900px){
     .grid{gap:4px; padding:4px;}
-    .dayHead{flex-basis:70px; padding:4px;}
-    .dayHead .wd{font-size:10px;}
-    .matches .match{width:calc(150px * var(--s));}
+    .dayHead{flex-basis:90px; padding:4px;}
+    .dayHead .wd{font-size:15px;}
+    .matches .match{width:calc(180px * var(--s));}
     .brand .titles .t2{display:none;}
   }
 
@@ -253,6 +284,7 @@
 
   <footer>
     <span id="statusLine">Iniciando…</span>
+    <span class="pageDots" id="pageDots"></span>
     <span class="onlinePill"><span class="liveDot"></span>En línea</span>
   </footer>
 </div>
@@ -264,7 +296,9 @@
 const CONFIG = {
   API_KEY: 'AIzaSyC2oQ0Y7RYZX_lgkgPIchochLltCnN78nc',
   TIMEZONE: 'America/Bogota',
-  DAYS_AHEAD: 7,
+  DAYS_AHEAD: 6,
+  DAY_PAGE_SIZE: 3,
+  DAY_PAGE_SECONDS: 30,
   REFRESH_EVENTS_MS: 3 * 60 * 1000,
   TICK_MS: 20 * 1000,
   MATCH_DURATION_MIN: 130,
@@ -998,6 +1032,49 @@ function getMatchEvents(info){
    RENDER
    ========================================================= */
 let CACHE = { events: [] };
+let ALL_DAYS = [];
+let dayPageIndex = 0;
+
+function currentDayPage(){
+  if(ALL_DAYS.length === 0) return [];
+  const start = dayPageIndex * CONFIG.DAY_PAGE_SIZE;
+  return ALL_DAYS.slice(start, start + CONFIG.DAY_PAGE_SIZE);
+}
+
+function renderPageDots(){
+  const el = document.getElementById('pageDots');
+  if(!el) return;
+  const totalPages = Math.max(1, Math.ceil(ALL_DAYS.length / CONFIG.DAY_PAGE_SIZE));
+  if(totalPages <= 1){ el.innerHTML = ''; return; }
+  el.innerHTML = Array.from({length: totalPages}, (_, i) =>
+    `<span class="dot ${i === dayPageIndex ? 'active':''}"></span>`
+  ).join('');
+}
+
+function renderCurrentDayPage(){
+  renderGrid(currentDayPage());
+  renderPageDots();
+}
+
+function rotateDayPage(){
+  const grid = document.getElementById('grid');
+  const totalPages = Math.max(1, Math.ceil(ALL_DAYS.length / CONFIG.DAY_PAGE_SIZE));
+  if(totalPages <= 1) return;
+  if(!grid){
+    dayPageIndex = (dayPageIndex + 1) % totalPages;
+    renderCurrentDayPage();
+    return;
+  }
+  grid.classList.remove('page-enter');
+  grid.classList.add('page-exit');
+  setTimeout(() => {
+    dayPageIndex = (dayPageIndex + 1) % totalPages;
+    renderCurrentDayPage();
+    grid.classList.remove('page-exit');
+    grid.classList.add('page-enter');
+    setTimeout(() => grid.classList.remove('page-enter'), 460);
+  }, 360);
+}
 
 function matchCardHTML(ev){
   const st = matchStatus(ev);
@@ -1046,7 +1123,7 @@ function matchCardHTML(ev){
   const progressHTML = showEstimatedProgress
     ? `<div class="progress"><i style="width:${st.pct.toFixed(0)}%"></i></div>` : '';
 
-  return `<div class="match ${st.state === 'finalizado' ? 'finalizado':''}" style="--comp-color:${ev.cal.color}; --comp-bg:${ev.cal.bgColor}; --comp-bg-soft:${ev.cal.bgColorSoft};">
+  return `<div class="match ${st.state === 'finalizado' ? 'finalizado':''} ${st.state === 'en_vivo' ? 'vivo':''}" style="--comp-color:${ev.cal.color}; --comp-bg:${ev.cal.bgColor}; --comp-bg-soft:${ev.cal.bgColorSoft};">
     <div class="comp"><img src="${ev.cal.logo}" alt="" onerror="this.style.display='none'">${ev.cal.label}</div>
     <div class="title">${ev.title}</div>
     ${ev.location ? `<div class="venue">📍 ${ev.location}</div>` : ''}
@@ -1221,7 +1298,9 @@ function applySpotlightView(){
 
 function renderAll(){
   const days = buildDayList();
-  renderGrid(days);
+  ALL_DAYS = days;
+  if(dayPageIndex >= Math.ceil(days.length / CONFIG.DAY_PAGE_SIZE)) dayPageIndex = 0;
+  renderCurrentDayPage();
   // Refresca la vista que esté activa ahora mismo con datos actuales (marcadores en vivo, etc).
   const currentView = SPOTLIGHT_VIEWS[spotlightViewIndex];
   if(currentView === 'today') renderSpotlight();
@@ -1282,6 +1361,7 @@ loadEvents();
 renderClock();
 setInterval(tick, CONFIG.TICK_MS);
 setInterval(loadEvents, CONFIG.REFRESH_EVENTS_MS);
+setInterval(rotateDayPage, CONFIG.DAY_PAGE_SECONDS * 1000);
 scheduleNextSpotlightRotation();
 </script>
 </body>
