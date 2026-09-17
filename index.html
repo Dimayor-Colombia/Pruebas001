@@ -6,6 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<meta name="color-scheme" content="light only">
 <title>DIMAYOR · Partidos de los Próximos Días</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
+    color-scheme: light only; /* le dice al WebView que no la invierta a modo oscuro */
     --bg:#f0f4f8;
     --card:#ffffff;
     --text:#0f172a;
@@ -85,32 +87,60 @@
     box-shadow:var(--shadow-lg), 0 0 0 2px rgba(0,99,204,0.35) inset;
   }
   .dayHead{
-    flex:0 0 150px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:6px 10px; position:relative;
-    border-right:1px solid var(--line); background:var(--soft-blue);
+    flex:0 0 96px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:5px; text-align:center; padding:6px 4px; position:relative;
+    border-right:1px solid var(--line);
+    background:linear-gradient(180deg, var(--soft-blue), var(--card));
   }
-  .dayCol.today .dayHead{background:linear-gradient(160deg, var(--primary-dark), var(--primary-light)); }
-  .dayHead .wd{font-size:24px; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:var(--primary-dark);}
+  .dayCol.today .dayHead{background:linear-gradient(180deg, var(--primary), var(--primary-dark)); }
+  .dayHead .dateBadge{
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:#fff; color:var(--primary-dark); box-shadow:var(--shadow-sm);
+    font-family:'DM Mono', monospace; font-weight:700; font-size:13px;
+  }
+  .dayCol.today .dayHead .dateBadge{ background:#fff; color:var(--primary-dark); }
+  .dayHead .wd{font-size:12px; text-transform:uppercase; letter-spacing:.8px; font-weight:700; color:var(--primary-dark);}
   .dayCol.today .dayHead .wd{color:#fff;}
-  .dayHead .dt{font-family:'DM Mono', monospace; font-size:14px; color:var(--muted); margin-top:4px;}
-  .dayCol.today .dayHead .dt{color:rgba(255,255,255,0.9);}
+  .dayHead .monthLabel{font-size:9px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:500;}
+  .dayCol.today .dayHead .monthLabel{color:rgba(255,255,255,.85);}
 
   .matches{
     flex:1 1 auto; min-height:0; min-width:0; overflow:hidden;
-    display:flex; flex-direction:row; flex-wrap:wrap; align-content:flex-start;
-    gap:calc(9px * var(--s));
-    padding:calc(10px * var(--s));
+    display:flex; flex-direction:row; flex-wrap:nowrap; align-items:stretch;
+    gap:9px;
+    padding:10px;
   }
   .matches .match{
-    flex:0 0 auto; width:calc(250px * var(--s));
+    flex:0 0 auto; width:250px; /* tamaño fijo, todos los partidos se ven igual de grandes */
+    display:flex; flex-direction:column; justify-content:center; gap:calc(4px * var(--s));
+    overflow:hidden; /* nunca se sale del alto de la fila */
   }
+  .matches .match .comp,
+  .matches .match .title,
+  .matches .match .venue,
+  .matches .match .row2,
+  .matches .match .progress{ flex:0 0 auto; }
+  .matches .match .matchEvents{ flex:1 1 auto; min-height:0; overflow:hidden; }
   .matches .match:nth-child(1){animation-delay:.08s;}
-  .matches .match:nth-child(2){animation-delay:.14s;}
-  .matches .match:nth-child(3){animation-delay:.2s;}
-  .matches .match:nth-child(4){animation-delay:.26s;}
-  .matches .match:nth-child(5){animation-delay:.32s;}
-  .matches .match:nth-child(6){animation-delay:.38s;}
-  .matches .match:nth-child(n+7){animation-delay:.44s;}
+  .matches .match:nth-child(2){animation-delay:.16s;}
+  .matches .match:nth-child(3){animation-delay:.24s;}
+
+  /* Carrusel: cuando hay más de 3 partidos en el día, en vez de achicar las tarjetas
+     se listan al doble (misma lista repetida) dentro de una franja que se desliza de
+     derecha a izquierda sin parar. Al llegar a -50% se ve idéntico al inicio (porque
+     el contenido está duplicado), así que el loop no se nota. */
+  .matchesTrack{
+    display:flex; flex-direction:row; flex-wrap:nowrap; gap:9px;
+  }
+  .matches.carousel{
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+  }
+  .matches.carousel .matchesTrack{
+    animation:marquee linear infinite;
+    animation-duration:var(--marquee-duration, 24s);
+  }
 
   .emptyState{ margin:auto; color:var(--muted); font-size:14px; text-align:center; padding:10px; }
 
@@ -138,7 +168,8 @@
   .match .comp img{width:calc(15px * var(--s)); height:calc(15px * var(--s)); object-fit:contain; border-radius:3px; flex:0 0 auto;}
   .match .title{
     font-size:calc(16px * var(--s)); font-weight:700; line-height:1.25; color:var(--text);
-    white-space:normal; overflow-wrap:break-word;
+    white-space:normal; overflow-wrap:break-word; word-break:break-word;
+    max-height:3.9em; overflow:hidden; /* tope duro de ~3 líneas, sin depender de -webkit-line-clamp */
   }
   .match .venue{
     font-size:calc(11.5px * var(--s)); color:var(--muted); margin-top:calc(3px * var(--s));
@@ -212,6 +243,10 @@
     0%,100%{ box-shadow:0 0 0 2px rgba(220,38,38,.55), var(--shadow); }
     50%{ box-shadow:0 0 0 4px rgba(220,38,38,.18), var(--shadow-lg); }
   }
+  @keyframes marquee{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
   @keyframes pageExit{ from{opacity:1; transform:translateX(0) scale(1);} to{opacity:0; transform:translateX(-32px) scale(.98);} }
   @keyframes pageEnter{ from{opacity:0; transform:translateX(32px) scale(.98);} to{opacity:1; transform:translateX(0) scale(1);} }
   .grid.page-exit{ animation:pageExit .35s var(--ease) forwards; }
@@ -223,9 +258,10 @@
 
   @media (max-width:900px){
     .grid{gap:4px; padding:4px;}
-    .dayHead{flex-basis:90px; padding:4px;}
-    .dayHead .wd{font-size:15px;}
-    .matches .match{width:calc(180px * var(--s));}
+    .dayHead{flex-basis:80px; padding:4px; gap:3px;}
+    .dayHead .dateBadge{width:26px; height:26px; font-size:11px;}
+    .dayHead .wd{font-size:10px;}
+    .matches .match{width:180px;}
     .brand .titles .t2{display:none;}
   }
 
@@ -257,10 +293,20 @@
   .spotlight-today-grid{
     --s:1.25;
     flex:1; min-height:0; overflow:hidden;
-    display:flex; flex-wrap:wrap; gap:16px;
+    display:flex; flex-wrap:wrap; gap:calc(14px * var(--s));
     align-content:flex-start; justify-content:center;
   }
-  .spotlight-today-grid .match{ width:330px; flex:0 0 330px; }
+  .spotlight-today-grid .match{ width:calc(300px * var(--s)); flex:0 0 auto; }
+
+  /* ---------- Spotlight: imágenes de la carpeta de Drive ---------- */
+  .spotlight-drive{
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    background:#000;
+  }
+  .spotlight-drive img{
+    max-width:100%; max-height:100%; object-fit:contain;
+    animation:fadeUp .5s var(--ease) both;
+  }
 </style>
 </head>
 <body>
@@ -281,6 +327,7 @@
 
   <div class="spotlight-overlay" id="spotlight"></div>
   <div class="spotlight-overlay" id="spotlightYesterday"></div>
+  <div class="spotlight-overlay" id="spotlightDrive"></div>
 
   <footer>
     <span id="statusLine">Iniciando…</span>
@@ -303,7 +350,10 @@ const CONFIG = {
   TICK_MS: 20 * 1000,
   MATCH_DURATION_MIN: 130,
   RELOAD_AT_MIDNIGHT: true,
-  MIN_SCALE: 0.55,
+  MIN_SCALE: 0.4,
+  SPOTLIGHT_MIN_SCALE: 0.55,
+  STATIC_MATCH_THRESHOLD: 3, // hasta 3 partidos por día se muestran fijos; más de eso, en carrusel
+  CAROUSEL_SPEED_PX_S: 32,   // velocidad del carrusel en píxeles por segundo
   SPOTLIGHT_SECONDS: 20, // valor de respaldo, ya no se usa directo (ver SPOTLIGHT_DURATIONS)
 
   // --- ESPN (marcador final) ---
@@ -328,7 +378,15 @@ const CONFIG = {
   KICKOFFAPI_KEY: 'ft_moreno58_87f19eb131868b5c7040356f34c927f0f8339100',
   KICKOFFAPI_SEASON: 2026,
   ALLSPORTS_BASE: 'https://apiv2.allsportsapi.com/football/',
-  ALLSPORTS_KEY: '43410442a93b71d2246d53ed2f2e10277656e3ff14061429bfc585fc00dc4c0c'
+  ALLSPORTS_KEY: '43410442a93b71d2246d53ed2f2e10277656e3ff14061429bfc585fc00dc4c0c',
+
+  // --- Carpeta de Google Drive con imágenes para proyectar ---
+  // Requiere que la misma API_KEY de arriba tenga habilitada la Google Drive API
+  // (en Google Cloud Console -> APIs y servicios -> Biblioteca -> Google Drive API -> Habilitar),
+  // y que la carpeta esté compartida como "Cualquiera con el enlace puede ver".
+  DRIVE_FOLDER_ID: '1rJfhagt9jHHnwm_8v2kDxZeWTqg48IcT',
+  DRIVE_REFRESH_MS: 5 * 60 * 1000, // cada cuánto se revisa si cambiaron las imágenes de la carpeta
+  DRIVE_IMAGE_SECONDS: 8            // cuánto dura cada imagen visible antes de pasar a la siguiente
 };
 
 const CALENDARS = [
@@ -429,6 +487,41 @@ async function fetchAllEvents(){
     else errors.push(CALENDARS[idx].label + ': ' + r.reason.message);
   });
   return { events, errors };
+}
+
+/* =========================================================
+   IMÁGENES DE LA CARPETA DE DRIVE
+   ========================================================= */
+const DRIVE_CACHE = { status: 'idle', ts: 0, images: [] };
+
+async function fetchDriveImages(){
+  if(DRIVE_CACHE.status === 'loading') return DRIVE_CACHE;
+  if(DRIVE_CACHE.status === 'ready' && (Date.now() - DRIVE_CACHE.ts) < CONFIG.DRIVE_REFRESH_MS) return DRIVE_CACHE;
+  DRIVE_CACHE.status = 'loading';
+  try{
+    const q = encodeURIComponent(`'${CONFIG.DRIVE_FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`);
+    const url = `https://www.googleapis.com/drive/v3/files?q=${q}&key=${encodeURIComponent(CONFIG.API_KEY)}&fields=files(id,name)&orderBy=name&pageSize=100`;
+    const res = await fetch(url);
+    if(!res.ok){
+      const body = await res.text().catch(()=> '');
+      throw new Error(`Drive HTTP ${res.status} ${body.slice(0,150)}`);
+    }
+    const data = await res.json();
+    DRIVE_CACHE.images = (data.files || []).map(f => ({
+      id: f.id,
+      name: f.name,
+      url: `https://lh3.googleusercontent.com/d/${f.id}`
+    }));
+    DRIVE_CACHE.status = 'ready';
+    DRIVE_CACHE.ts = Date.now();
+  }catch(err){
+    console.warn('Error carpeta de Drive (spotlight de imágenes)', err);
+    // Si falla, se mantienen las imágenes que ya se tenían en caché (si había),
+    // y simplemente no se actualiza el listado hasta el próximo intento.
+    DRIVE_CACHE.status = 'error';
+    DRIVE_CACHE.ts = Date.now();
+  }
+  return DRIVE_CACHE;
 }
 
 /* =========================================================
@@ -1076,7 +1169,8 @@ function rotateDayPage(){
   }, 360);
 }
 
-function matchCardHTML(ev){
+function matchCardHTML(ev, opts={}){
+  const showEvents = opts.showEvents !== false;
   const st = matchStatus(ev);
   const info = getMatchInfo(ev); // null si no hay cobertura ESPN o todavía no hay datos
   let centerHTML = '';
@@ -1089,7 +1183,7 @@ function matchCardHTML(ev){
         <div class="scoreBig">${info.golesHome} - ${info.golesAway}</div>
         <div class="matchClock"><span class="liveDotSmall"></span>${info.clockText || 'En vivo'}</div>
       </div>`;
-      const evsLive = info.eventId ? getMatchEvents(info) : { home: [], away: [] };
+      const evsLive = (showEvents && info.eventId) ? getMatchEvents(info) : { home: [], away: [] };
       if(evsLive.home.length || evsLive.away.length){
         eventsHTML = `<div class="matchEvents">
           <div class="teamEvents">${evsLive.home.map(l => `<div>${l}</div>`).join('')}</div>
@@ -1106,7 +1200,7 @@ function matchCardHTML(ev){
         <div class="scoreBig">${info.golesHome} - ${info.golesAway}</div>
         <div class="matchClock">Finalizado</div>
       </div>`;
-      const evs = info.eventId ? getMatchEvents(info) : { home: [], away: [] };
+      const evs = (showEvents && info.eventId) ? getMatchEvents(info) : { home: [], away: [] };
       if(evs.home.length || evs.away.length){
         eventsHTML = `<div class="matchEvents">
           <div class="teamEvents">${evs.home.map(l => `<div>${l}</div>`).join('')}</div>
@@ -1114,7 +1208,7 @@ function matchCardHTML(ev){
         </div>`;
       }
     } else {
-      centerHTML = `<span class="badge done">Fin</span>`;
+      centerHTML = `<span class="badge done">Finalizado</span>`;
     }
   } else {
     centerHTML = `<span class="kickoff">${ev.allDay ? '--:--' : fmtTime(ev.startISO)}</span>`;
@@ -1146,53 +1240,85 @@ function eventsForDay(key){
 
 function renderGrid(days){
   const grid = document.getElementById('grid');
-  grid.innerHTML = days.map(d => `
+  grid.innerHTML = days.map(d => {
+    const [dayNum, monthAbbr] = d.shortDate.split(' ');
+    return `
     <section class="dayCol ${d.isToday ? 'today':''}" data-key="${d.key}">
       <div class="dayHead">
+        <div class="dateBadge">${dayNum}</div>
         <div class="wd">${d.label}</div>
-        <div class="dt">${d.shortDate}</div>
+        <div class="monthLabel">${monthAbbr}</div>
       </div>
       <div class="matches" id="matches-${d.key}"></div>
     </section>
-  `).join('');
+  `;
+  }).join('');
 
   days.forEach(d => fillColumn(d.key));
 }
 
-function fillColumn(key){
-  const col = document.getElementById(`matches-${key}`);
-  const all = eventsForDay(key);
-
-  if(all.length === 0){
-    col.style.setProperty('--s', 1);
-    col.innerHTML = `<div class="emptyState">Sin partidos</div>`;
+// Ajusta el tamaño (--s) de una grilla de tarjetas de partido para que TODAS quepan
+// en el contenedor, sin recortar ninguna. Se usa tanto para las columnas de día como
+// para el spotlight de hoy/ayer. Va achicando de a poco hasta que entre todo o hasta
+// llegar al mínimo legible; si aún así no entra, se deja mostrar con leve desborde
+// (nunca se ocultan partidos).
+function fitMatchesGrid(container, events, minScale, cardOpts){
+  if(!container) return;
+  if(events.length === 0){
+    container.style.setProperty('--s', 1);
+    container.innerHTML = `<div class="emptyState">Sin partidos</div>`;
     return;
   }
 
-  let visible = all.slice();
   let scale = 1;
-
   const render = () => {
-    col.style.setProperty('--s', scale.toFixed(2));
-    const hiddenCount = all.length - visible.length;
-    col.innerHTML = visible.map(matchCardHTML).join('')
-      + (hiddenCount > 0 ? `<div class="moreChip">+${hiddenCount} más</div>` : '');
+    container.style.setProperty('--s', scale.toFixed(2));
+    container.innerHTML = events.map(ev => matchCardHTML(ev, cardOpts)).join('');
   };
 
   render();
 
   let guard = 0;
-  while(col.scrollHeight > col.clientHeight && guard < 60){
+  while(container.scrollHeight > container.clientHeight && scale > minScale && guard < 80){
     guard++;
-    if(scale > CONFIG.MIN_SCALE){
-      scale = Math.max(CONFIG.MIN_SCALE, scale - 0.05);
-    } else if(visible.length > 1){
-      visible = visible.slice(0, -1);
-    } else {
-      break;
-    }
+    scale = Math.max(minScale, scale - 0.03);
     render();
   }
+}
+
+function fillColumn(key){
+  const col = document.getElementById(`matches-${key}`);
+  const all = eventsForDay(key);
+  renderDayMatches(col, all);
+}
+
+// Todas las tarjetas de partido de un día se ven SIEMPRE del mismo tamaño normal.
+// Hasta STATIC_MATCH_THRESHOLD partidos: fila fija, quieta. Más que eso: la lista se
+// duplica y se pone a correr de derecha a izquierda sin parar (carrusel), para que
+// con el tiempo se vean todos sin achicar ninguno.
+function renderDayMatches(container, events){
+  if(!container) return;
+  container.style.removeProperty('--s'); // tamaño fijo: usa el valor base (1) de :root
+
+  if(events.length === 0){
+    container.classList.remove('carousel');
+    container.innerHTML = `<div class="emptyState">Sin partidos</div>`;
+    return;
+  }
+
+  if(events.length <= CONFIG.STATIC_MATCH_THRESHOLD){
+    container.classList.remove('carousel');
+    container.innerHTML = events.map(ev => matchCardHTML(ev)).join('');
+    return;
+  }
+
+  container.classList.add('carousel');
+  const cardsHTML = events.map(ev => matchCardHTML(ev)).join('');
+  container.innerHTML = `<div class="matchesTrack">${cardsHTML}${cardsHTML}</div>`;
+  const track = container.querySelector('.matchesTrack');
+  const halfWidth = track.scrollWidth / 2;
+  const duration = Math.max(10, halfWidth / CONFIG.CAROUSEL_SPEED_PX_S);
+  track.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
 }
 
 function renderClock(){
@@ -1204,10 +1330,11 @@ function renderClock(){
 }
 
 /* =========================================================
-   SPOTLIGHT: TODOS los partidos de HOY y de AYER, rotando con el calendario
+   SPOTLIGHT: TODOS los partidos de HOY y de AYER, más la vista de imágenes
+   de Drive, rotando junto con el calendario
    ========================================================= */
-const SPOTLIGHT_VIEWS = ['grid', 'today', 'grid', 'yesterday'];
-const SPOTLIGHT_DURATIONS = { grid: 30, today: 8, yesterday: 8 }; // segundos que dura cada vista
+const SPOTLIGHT_VIEWS = ['today', 'grid', 'grid', 'yesterday', 'drive'];
+const SPOTLIGHT_DURATIONS = { grid: 30, today: 10, yesterday: 10 }; // segundos que dura cada vista (drive se calcula aparte)
 let spotlightViewIndex = 0;
 
 function todaysEvents(){
@@ -1226,7 +1353,7 @@ function yesterdaysEvents(){
     .sort((a, b) => new Date(a.startISO) - new Date(b.startISO));
 }
 
-function renderDayView(elId, events, titlePrefix, dateForLabel){
+function renderDayView(elId, events, titlePrefix, dateForLabel, cardOpts){
   const el = document.getElementById(elId);
   if(!el) return;
   if(events.length === 0){ el.innerHTML = ''; return; }
@@ -1235,8 +1362,9 @@ function renderDayView(elId, events, titlePrefix, dateForLabel){
         <img class="spotlight-today-logo" src="https://lh3.googleusercontent.com/d/1l4mdgdoIJxuPBRY8VDhhC-AJQW6vgdWr" alt="DIMAYOR">
         <div class="spotlight-today-title">${titlePrefix} · ${WD_NAMES[weekdayIndexBogota(dateForLabel)]} ${fmtDayShort(dateForLabel)}</div>
       </div>
-      <div class="spotlight-today-grid">${events.map(ev => matchCardHTML(ev)).join('')}</div>
+      <div class="spotlight-today-grid" id="${elId}-grid"></div>
     </div>`;
+  fitMatchesGrid(document.getElementById(`${elId}-grid`), events, CONFIG.SPOTLIGHT_MIN_SCALE, cardOpts);
 }
 
 function renderSpotlight(){
@@ -1246,11 +1374,41 @@ function renderSpotlight(){
 function renderSpotlightYesterday(){
   const y = new Date(bogotaNow());
   y.setDate(y.getDate() - 1);
-  renderDayView('spotlightYesterday', yesterdaysEvents(), 'Partidos de ayer', y);
+  renderDayView('spotlightYesterday', yesterdaysEvents(), 'Partidos de ayer', y, { showEvents:false });
 }
 
-// Rota entre el calendario de 7 días, los partidos de hoy y los de ayer,
-// con una transición de opacidad suave (crossfade) entre cada una.
+// ---- Slideshow de imágenes de la carpeta de Drive ----
+let driveImgIndex = 0;
+let driveImgTimer = null;
+
+function renderSpotlightDriveFrame(){
+  const el = document.getElementById('spotlightDrive');
+  if(!el) return;
+  const images = DRIVE_CACHE.images;
+  if(images.length === 0){ el.innerHTML = ''; return; }
+  if(driveImgIndex >= images.length) driveImgIndex = 0;
+  const img = images[driveImgIndex];
+  el.innerHTML = `<div class="spotlight-drive"><img src="${img.url}" alt="${img.name}" onerror="this.closest('.spotlight-drive').style.background='#000'"></div>`;
+}
+
+function startDriveSlideshow(){
+  stopDriveSlideshow();
+  driveImgIndex = 0;
+  renderSpotlightDriveFrame();
+  if(DRIVE_CACHE.images.length > 1){
+    driveImgTimer = setInterval(() => {
+      driveImgIndex = (driveImgIndex + 1) % DRIVE_CACHE.images.length;
+      renderSpotlightDriveFrame();
+    }, CONFIG.DRIVE_IMAGE_SECONDS * 1000);
+  }
+}
+
+function stopDriveSlideshow(){
+  if(driveImgTimer){ clearInterval(driveImgTimer); driveImgTimer = null; }
+}
+
+// Rota entre el calendario de 7 días, los partidos de hoy, los de ayer y las
+// imágenes de Drive, con una transición de opacidad suave (crossfade) entre cada una.
 let spotlightTimer = null;
 
 function rotateSpotlightView(){
@@ -1259,12 +1417,17 @@ function rotateSpotlightView(){
   scheduleNextSpotlightRotation();
 }
 
-// Cada vista dura un tiempo distinto (ver SPOTLIGHT_DURATIONS), así que en vez de un
-// intervalo fijo, se reprograma un temporizador nuevo según la vista que quedó activa.
+// Cada vista dura un tiempo distinto (ver SPOTLIGHT_DURATIONS; "drive" se calcula
+// según cuántas imágenes hay), así que en vez de un intervalo fijo, se reprograma
+// un temporizador nuevo según la vista que quedó activa.
 function scheduleNextSpotlightRotation(){
   if(spotlightTimer) clearTimeout(spotlightTimer);
   const view = SPOTLIGHT_VIEWS[spotlightViewIndex];
-  const seconds = SPOTLIGHT_DURATIONS[view] ?? CONFIG.SPOTLIGHT_SECONDS;
+  let seconds = SPOTLIGHT_DURATIONS[view] ?? CONFIG.SPOTLIGHT_SECONDS;
+  if(view === 'drive'){
+    const count = Math.max(1, DRIVE_CACHE.images.length);
+    seconds = count * CONFIG.DRIVE_IMAGE_SECONDS;
+  }
   spotlightTimer = setTimeout(rotateSpotlightView, seconds * 1000);
 }
 
@@ -1272,17 +1435,21 @@ function applySpotlightView(){
   const grid = document.getElementById('grid');
   const elToday = document.getElementById('spotlight');
   const elYesterday = document.getElementById('spotlightYesterday');
-  if(!grid || !elToday || !elYesterday) return;
+  const elDrive = document.getElementById('spotlightDrive');
+  if(!grid || !elToday || !elYesterday || !elDrive) return;
 
   let view = SPOTLIGHT_VIEWS[spotlightViewIndex];
 
-  // Si la vista elegida no tiene partidos, se salta a la siguiente automáticamente
-  // (nunca se queda pegado mostrando una pantalla vacía).
+  // Si la vista elegida no tiene contenido (sin partidos o, en el caso de "drive",
+  // la carpeta de Drive vacía o sin cargar todavía), se salta a la siguiente
+  // automáticamente. Nunca se queda pegado mostrando una pantalla vacía: ese día
+  // sin imágenes, el tablero sigue rotando normal entre calendario/hoy/ayer.
   let guard = 0;
   while(guard < SPOTLIGHT_VIEWS.length){
     if(view === 'grid') break;
     if(view === 'today' && todaysEvents().length > 0) break;
     if(view === 'yesterday' && yesterdaysEvents().length > 0) break;
+    if(view === 'drive' && DRIVE_CACHE.images.length > 0) break;
     spotlightViewIndex = (spotlightViewIndex + 1) % SPOTLIGHT_VIEWS.length;
     view = SPOTLIGHT_VIEWS[spotlightViewIndex];
     guard++;
@@ -1290,10 +1457,12 @@ function applySpotlightView(){
 
   if(view === 'today') renderSpotlight();
   if(view === 'yesterday') renderSpotlightYesterday();
+  if(view === 'drive') startDriveSlideshow(); else stopDriveSlideshow();
 
   grid.classList.toggle('dimmed', view !== 'grid');
   elToday.classList.toggle('visible', view === 'today');
   elYesterday.classList.toggle('visible', view === 'yesterday');
+  elDrive.classList.toggle('visible', view === 'drive');
 }
 
 function renderAll(){
@@ -1357,10 +1526,13 @@ function tick(){
 
 window.addEventListener('resize', renderAll);
 
-loadEvents();
+Promise.all([loadEvents(), fetchDriveImages()]).then(() => {
+  applySpotlightView(); // muestra bien la primera vista del ciclo ('hoy') ya con los datos cargados
+});
 renderClock();
 setInterval(tick, CONFIG.TICK_MS);
 setInterval(loadEvents, CONFIG.REFRESH_EVENTS_MS);
+setInterval(fetchDriveImages, CONFIG.DRIVE_REFRESH_MS);
 setInterval(rotateDayPage, CONFIG.DAY_PAGE_SECONDS * 1000);
 scheduleNextSpotlightRotation();
 </script>
