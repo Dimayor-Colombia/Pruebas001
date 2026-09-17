@@ -501,7 +501,12 @@ async function fetchDriveImages(){
   DRIVE_CACHE.status = 'loading';
   try{
     const q = encodeURIComponent(`'${CONFIG.DRIVE_FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`);
-    const url = `https://www.googleapis.com/drive/v3/files?q=${q}&key=${encodeURIComponent(CONFIG.DRIVE_API_KEY)}&fields=files(id,name)&orderBy=name&pageSize=100`;
+    // supportsAllDrives + includeItemsFromAllDrives son obligatorios para que la
+    // consulta encuentre archivos que viven dentro de una Unidad Compartida
+    // (Shared Drive), como es el caso de la carpeta de DIMAYOR. No se usa
+    // corpora=allDrives porque combinado con un filtro "in parents" de una
+    // carpeta específica, Google devuelve error 400 (Bad Request).
+    const url = `https://www.googleapis.com/drive/v3/files?q=${q}&key=${encodeURIComponent(CONFIG.DRIVE_API_KEY)}&fields=files(id,name)&orderBy=name&pageSize=100&supportsAllDrives=true&includeItemsFromAllDrives=true`;
     const res = await fetch(url);
     if(!res.ok){
       const body = await res.text().catch(()=> '');
