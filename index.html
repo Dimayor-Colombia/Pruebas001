@@ -381,10 +381,11 @@ const CONFIG = {
   ALLSPORTS_KEY: '43410442a93b71d2246d53ed2f2e10277656e3ff14061429bfc585fc00dc4c0c',
 
   // --- Carpeta de Google Drive con imágenes para proyectar ---
-  // Requiere que la misma API_KEY de arriba tenga habilitada la Google Drive API
+  // DRIVE_API_KEY debe tener habilitada la Google Drive API
   // (en Google Cloud Console -> APIs y servicios -> Biblioteca -> Google Drive API -> Habilitar),
-  // y que la carpeta esté compartida como "Cualquiera con el enlace puede ver".
+  // y la carpeta debe estar compartida como "Cualquiera con el enlace puede ver".
   DRIVE_FOLDER_ID: '1rJfhagt9jHHnwm_8v2kDxZeWTqg48IcT',
+  DRIVE_API_KEY: 'AIzaSyBrdcqFd_zz4TTOXYta4cvwVMc0PDuaF9U', // key dedicada, con la Google Drive API habilitada
   DRIVE_REFRESH_MS: 5 * 60 * 1000, // cada cuánto se revisa si cambiaron las imágenes de la carpeta
   DRIVE_IMAGE_SECONDS: 8            // cuánto dura cada imagen visible antes de pasar a la siguiente
 };
@@ -500,7 +501,7 @@ async function fetchDriveImages(){
   DRIVE_CACHE.status = 'loading';
   try{
     const q = encodeURIComponent(`'${CONFIG.DRIVE_FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`);
-    const url = `https://www.googleapis.com/drive/v3/files?q=${q}&key=${encodeURIComponent(CONFIG.API_KEY)}&fields=files(id,name)&orderBy=name&pageSize=100`;
+    const url = `https://www.googleapis.com/drive/v3/files?q=${q}&key=${encodeURIComponent(CONFIG.DRIVE_API_KEY)}&fields=files(id,name)&orderBy=name&pageSize=100`;
     const res = await fetch(url);
     if(!res.ok){
       const body = await res.text().catch(()=> '');
