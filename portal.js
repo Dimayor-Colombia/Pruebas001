@@ -501,7 +501,8 @@
       '<p class="vd-texto-suave">Tu número de radicado es</p>' +
       '<div class="vd-radicado">' + esc(sol.consecutivo) + '</div>' +
       '<p class="vd-texto-suave">' + esc(sol.tipoNombre) + ' · ' + esc(p.local) + ' vs ' + esc(p.visitante) + '<br>' +
-        'Enviamos la confirmación a <b>' + esc(sol.solicitante.correo) + '</b>. Te escribiremos cuando ' +
+        'Enviamos la confirmación a <b>' + esc(sol.solicitante.correo) + '</b>' +
+        (sol.solicitante.correoCopia ? ' y a <b>' + esc(sol.solicitante.correoCopia) + '</b>' : '') + '. Te escribiremos cuando ' +
         esc((sol.areas || []).map(function (a) { return a === 'deportiva' ? 'Deportiva' : 'Mercadeo'; }).join(' y ')) + ' respondan.</p>' +
       '<div class="vd-acciones">' +
         (r.pdf && r.pdf.url ? '<a class="vd-btn vd-btn-sec" href="' + esc(r.pdf.url) + '" target="_blank" rel="noopener">📄 Ver PDF</a>' : '') +
