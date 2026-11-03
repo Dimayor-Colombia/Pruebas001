@@ -89,13 +89,12 @@
   function tipoActual() {
     return (S.sesion && S.sesion.tipos || []).filter(function (t) { return t.clave === S.tipo; })[0] || null;
   }
-  function escudo(nombre, clase) {
-    var base = S.sesion && S.sesion.escudosBase;
+  // url = la que trae el partido desde el servidor (pestaña "Escudos"). Sin url o si falla: iniciales.
+  function escudo(nombre, url, clase) {
     var ini = '<span class="vd-escudo-ini ' + (clase || '') + '">' + esc(iniciales(nombre)) + '</span>';
-    if (!base) return ini;
-    // Si la imagen no existe, se reemplaza por las iniciales
+    if (!url) return ini;
     return '<span class="vd-escudo ' + (clase || '') + '" data-ini="' + esc(ini) + '">' +
-      '<img src="' + esc(base + slug(nombre) + '.png') + '" alt="" loading="lazy" ' +
+      '<img src="' + esc(url) + '" alt="" loading="lazy" ' +
       'onerror="this.parentNode.outerHTML=this.parentNode.getAttribute(\'data-ini\')"></span>';
   }
 
@@ -330,9 +329,9 @@
       '<div class="vd-p-cab">' + (p.logo ? '<img src="' + esc(p.logo) + '" alt="">' : '') + esc(p.competencia) +
         (p.jornada ? '<span class="vd-jornada">' + esc(p.jornada) + '</span>' : '') + '</div>' +
       '<div class="vd-equipos">' +
-        '<div class="vd-equipo">' + escudo(p.local) + esc(p.local) + '<small>Local</small></div>' +
+        '<div class="vd-equipo">' + escudo(p.local, p.escudoLocal) + esc(p.local) + '<small>Local</small></div>' +
         '<div class="vd-vs">VS</div>' +
-        '<div class="vd-equipo">' + escudo(p.visitante) + esc(p.visitante) + '</div>' +
+        '<div class="vd-equipo">' + escudo(p.visitante, p.escudoVisitante) + esc(p.visitante) + '</div>' +
       '</div>' +
       '<div class="vd-p-meta"><span>📅 ' + esc(p.fechaTexto) + '</span><span>🕒 ' + esc(p.horaTexto) + '</span>' +
         (p.ubicacion ? '<span>🏟️ ' + esc(p.ubicacion) + '</span>' : '') + '</div>' +
